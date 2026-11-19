@@ -283,6 +283,7 @@ footer img{height:16px}
         <details open><summary><span class="num">06</span>Department links<span class="badge req">Preset</span></summary><div class="body">
           <div class="legend">Your department's required links are preset and locked. Add any others you need, and check each URL before rollout.</div>
           <div id="linkList" style="display:grid;gap:8px"></div>
+          <div class="tog"><div>Email &amp; Call buttons<small>Paste-proof format only. Gives tap-to-contact, since text in the image can't be clicked</small></div><label class="switch"><input type="checkbox" id="t_cbtn" checked><span></span></label></div>
           <div class="tog"><div>Book-a-meeting link<small>Adds your calendar link</small></div><label class="switch"><input type="checkbox" id="t_meet"><span></span></label></div>
           <input type="url" id="f_meet" placeholder="https://outlook.office.com/bookwithme/..." style="display:none">
         </div></details>
@@ -317,6 +318,7 @@ footer img{height:16px}
 
       <div class="stage">
         <div class="toolbar">
+          <div class="tabs" id="fmtTabs" title="How the signature is built"><button data-v="proof" class="on">Paste-proof</button><button data-v="live">Live text</button></div>
           <div class="tabs" id="viewTabs"><button data-v="preview" class="on">Preview</button><button data-v="code">Code</button></div>
           <div class="tabs" id="modeTabs"><button data-v="light" class="on">Light</button><button data-v="dark">Outlook dark</button></div>
           <div class="tabs" id="sizeTabs"><button data-v="desktop" class="on">Desktop</button><button data-v="mobile">Mobile</button></div>
@@ -342,7 +344,12 @@ footer img{height:16px}
           <pre id="code"></pre>
         </div>
 
-        <div class="legend" id="legendText"><b>Copy for Outlook</b> copies the finished signature with its images included. In Outlook, go to Settings › Accounts › Signatures, paste it in, and save. The <b>Outlook dark</b> preview simulates Outlook for Windows' color inversion. For Gmail or hosted setups, use <b>Code</b> with hosted image URLs.</div>
+        <div class="note" id="proofNote"><b>Paste-proof format:</b> looks the same in every Outlook paste mode, including the default <i>Merge formatting</i>. Your name, designation, contact details, logo, tagline and capsules are drawn as one sharp image, and your links and the CTA are image buttons. All links still work, and the alt text carries your full details. The trade-off: text in the image can't be selected or copied. Use the Email and Call buttons for tap-to-contact.</div>
+        <div class="note warn" id="pasteNote"><b>Before you paste, set Outlook to keep formatting.</b> Since mid-2024, Outlook's default paste mode is <i>Merge formatting</i>. It strips font sizes, colors and link styles, so your name ends up the same size as your designation.<br>
+<b>New Outlook / Outlook on the web:</b> Settings › Mail › Compose and reply › <i>Cut, copy and paste</i> › Pasting from other apps → <b>Keep source formatting</b>.<br>
+<b>Classic Outlook (Windows):</b> File › Options › Mail › Editor Options › Advanced › <i>Cut, copy, and paste</i> › Pasting from other programs → <b>Keep Source Formatting</b>.<br>
+Or, straight after pasting, open the <b>paste options</b> button (the small ••• or clipboard icon) and choose <b>Keep source formatting</b>.</div>
+        <div class="legend" id="legendText"><b>Copy for Outlook</b> copies the finished signature with its images included. The <b>Outlook dark</b> preview simulates Outlook for Windows' color inversion. For Gmail or hosted setups, use <b>Code</b> with hosted image URLs.</div>
       </div>
     </div>
   </div>
@@ -353,13 +360,13 @@ footer img{height:16px}
   <div class="wrap">
     <div class="frame">
       <i class="dot d1"></i><i class="dot d2"></i><i class="dot d3"></i><i class="dot d4"></i>
-      <span class="cap c1">Copy once</span><span class="cap c2">Paste anywhere</span><span class="cap c3">Aptos throughout</span><span class="cap c4">Outlook-safe images</span>
+      <span class="cap c1">Keep source formatting</span><span class="cap c2">Paste anywhere</span><span class="cap c3">Aptos throughout</span><span class="cap c4">Outlook-safe images</span>
       <div style="text-align:center"><span class="eyebrow blue"><i></i>Install</span>
       <h2 style="margin-top:14px">Paste It Into Outlook. <em>That's It.</em></h2></div>
       <div class="steps">
         <div><b>01</b><h4>Build</h4><p>Choose your department, fill in your details and decide whether to include your picture.</p></div>
         <div><b>02</b><h4>Copy</h4><p>Click <strong style="color:#fff">Copy for Outlook</strong>. The signature and its images go to your clipboard together.</p></div>
-        <div><b>03</b><h4>Paste</h4><p>New Outlook and Outlook on the web: Settings › Accounts › Signatures. Classic Outlook: File › Options › Mail › Signatures.</p></div>
+        <div><b>03</b><h4>Paste</h4><p>First set paste to <strong style="color:#fff">Keep source formatting</strong>: Settings › Mail › Compose and reply › Cut, copy and paste. Then paste into Settings › Accounts › Signatures. Classic Outlook: File › Options › Mail › Signatures.</p></div>
         <div><b>04</b><h4>Test</h4><p>Send yourself a test in light and dark mode, and on your phone, before you use it with clients.</p></div>
       </div>
     </div>
@@ -447,7 +454,7 @@ const S = {
   banner:false, bType:"brand", bPattern:"diagonal", bTheme:"midnight", bChip:"", bHead:"", bSub:"", bCta:"", bUrl:"", bCtaStyle:"white",
   evName:"[Event Name]", evDate:"Oct 29, 2026", evVenue:"Venue", evBooth:"No.", bStart:"", bEnd:"", bOwner:"",
   legal:false, legalText:"",
-  view:"preview", mode:"light", size:"desktop", hosted:false, base:"https://www.qualizeal.com/email-signatures/",
+  fmt:"proof", contactBtns:true, view:"preview", mode:"light", size:"desktop", hosted:false, base:"https://www.qualizeal.com/email-signatures/",
   bannerData:null,
 };
 const $ = id => document.getElementById(id);
@@ -520,7 +527,7 @@ function bind(){
     S[{f_evName:'evName',f_evDate:'evDate',f_evVenue:'evVenue',f_evBooth:'evBooth'}[id]] = e.target.value;
     S.bHead = `Meet QualiZeal at ${S.evName}`; S.bSub = `${S.evDate} | ${S.evVenue} | Booth ${S.evBooth} | Book a meeting with our team.`;
     $('f_bHead').value = S.bHead; $('f_bSub').value = S.bSub; render(); }));
-  const tg = {t_office:'office',t_loc:'loc',t_pron:'pron',t_photo:'photo',t_grad:'grad',t_caps:'caps',t_cta:'cta',t_meet:'meet',t_banner:'banner',t_legal:'legal'};
+  const tg = {t_cbtn:'contactBtns',t_office:'office',t_loc:'loc',t_pron:'pron',t_photo:'photo',t_grad:'grad',t_caps:'caps',t_cta:'cta',t_meet:'meet',t_banner:'banner',t_legal:'legal'};
   Object.entries(tg).forEach(([id,k]) => $(id).addEventListener('change', e => { S[k] = e.target.checked; if(k==='legal') S.legalText=$('f_legal').value; showHide(); render(); }));
   $('f_bType').addEventListener('change', e => { setBannerType(e.target.value); syncForm(); render(); });
   document.querySelectorAll('.opts').forEach(o => o.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return;
@@ -536,7 +543,7 @@ function bind(){
     r.readAsDataURL(f); });
   const tabs = (id,key,fn) => $(id).addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; S[key]=b.dataset.v;
     $(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); fn&&fn(); render(); });
-  tabs('viewTabs','view'); tabs('modeTabs','mode'); tabs('sizeTabs','size');
+  tabs('fmtTabs','fmt'); tabs('viewTabs','view'); tabs('modeTabs','mode'); tabs('sizeTabs','size');
   $('t_hosted').addEventListener('change', e => { S.hosted = e.target.checked; render(); });
   $('f_base').addEventListener('input', e => { S.base = e.target.value; render(); });
   $('copyOutlook').addEventListener('click', copyOutlook);
@@ -623,6 +630,11 @@ function drawButton(){
 }
 
 /* ---------------- signature HTML ---------------- */
+// Legacy <font> fallback: Outlook for Mac's signature editor strips inline CSS on paste but keeps <font>/<b>.
+// size map: 2 = 10pt (~13px), 3 = 12pt (16px), 4 = 13.5pt (18px)
+const FACE = "Aptos, Segoe UI, Calibri, Arial, sans-serif";
+const FT = (inner,size,col) => `<font face="${FACE}" size="${size}" color="${col}">${inner}</font>`;
+const ptToSize = pt => pt>=13 ? 4 : pt>=11 ? 3 : 2;
 function imgSrc(key, hosted){ // key: badge_*, photo, banner, grad
   if(!hosted){ return key==='photo'?S.photoSrc : key==='banner'?S.bannerData : key==='cta'?S.ctaData : A[key]; }
   const name = {badge_midnight:'logo-badge-midnight.png',badge_blue:'logo-badge-blue.png',badge_white:'logo-badge-white.png',grad:'grad-line.png',
@@ -630,21 +642,123 @@ function imgSrc(key, hosted){ // key: badge_*, photo, banner, grad
   return (S.base||'').replace(/\/?$/,'/') + name;
 }
 const slug = s => (s||'person').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-function A_(href,text,color,extra=''){ return `<a href="${esc(href)}" target="_blank" style="color:${color};text-decoration:none;"><span style="color:${color};text-decoration:none;${extra}">${text}</span></a>`; }
+function A_(href,text,color,extra=''){ return `<a href="${esc(href)}" target="_blank" style="color:${color};text-decoration:none;text-underline:none;font-family:${F};"><font color="${color}"><span style="color:${color};text-decoration:none;text-underline:none;font-family:${F};${extra}">${text}</span></font></a>`; }
+/* ---------------- paste-proof renderers ---------------- */
+const IMGC = {};
+function getImg(src){ if(!IMGC[src]){ const im=new Image(); im.onload=()=>render(); im.src=src; IMGC[src]=im; } return IMGC[src]; }
+function ready(...srcs){ return srcs.every(s => { const im=getImg(s); return im.complete && im.naturalWidth; }); }
+function rrect(x,X,Y,W,H,R){ x.beginPath(); x.moveTo(X+R,Y); x.arcTo(X+W,Y,X+W,Y+H,R); x.arcTo(X+W,Y+H,X,Y+H,R); x.arcTo(X,Y+H,X,Y,R); x.arcTo(X,Y,X+W,Y,R); x.closePath(); }
+function wrapWords(x,text,maxW){ const words=String(text).split(/\s+/); const lines=[]; let cur='';
+  words.forEach(w=>{ const t=cur?cur+' '+w:w; if(x.measureText(t).width>maxW && cur){ lines.push(cur); cur=w; } else cur=t; }); if(cur) lines.push(cur); return lines; }
+// Identity card: everything Outlook's "Merge formatting" would restyle, drawn at 2x on opaque white.
+function drawCard(){
+  const d=DEPTS[S.dept], sc=2, W=560, pad=16, ps=88;
+  const photoSrc=S.photoSrc, badge=A['badge_'+S.logo];
+  if(!ready(badge, ...(S.photo?[photoSrc]:[]))) return null;
+  const c=document.createElement('canvas'); c.width=W*sc; c.height=900*sc; const x=c.getContext('2d'); x.scale(sc,sc);
+  x.fillStyle='#FFFFFF'; x.fillRect(0,0,W,900); x.textBaseline='alphabetic';
+  const tx = S.photo ? pad+ps+20 : pad, tw = W - tx - pad;
+  const font=(w,sz)=>`${w} ${sz}px ${F}`;
+  let y=pad;
+  if(S.photo){ const im=getImg(photoSrc); x.save();
+    if(S.photoShape==='circle'){ x.beginPath(); x.arc(pad+ps/2,y+2+ps/2,ps/2,0,Math.PI*2); x.closePath(); } else rrect(x,pad,y+2,ps,ps,14);
+    x.clip(); x.drawImage(im,pad,y+2,ps,ps); x.restore();
+    if(S.photoRing!=='none'){ x.strokeStyle=S.photoRing; x.lineWidth=2; x.beginPath();
+      if(S.photoShape==='circle') x.arc(pad+ps/2,y+2+ps/2,ps/2-1,0,Math.PI*2); else rrect(x,pad+1,y+3,ps-2,ps-2,13); x.stroke(); } }
+  // name (+ pronouns)
+  x.font=font(700,19); x.fillStyle='#000D39'; const nm=S.name||'Your Name'; x.fillText(nm,tx,y+18);
+  if(S.pron && S.pronText){ const nw=x.measureText(nm).width; x.font=font(400,12.5); x.fillStyle='#8A94A6'; x.fillText(`(${S.pronText})`,tx+nw+6,y+18); }
+  y+=24;
+  // designation
+  x.font=font(600,13); x.fillStyle='#001A6A'; wrapWords(x,`${S.title||'Designation'} | ${S.company}`,tw).forEach(l=>{ y+=2; x.fillText(l,tx,y+13); y+=16; });
+  // contact rows (label blue bold + value grey), flowing with wrap
+  y+=7;
+  const row=(items)=>{ let cx=tx; const lh=19; let first=true;
+    items.forEach(([lab,val])=>{ x.font=font(700,12.5); const lw=x.measureText(lab+' ').width; x.font=font(400,12.5); const vw=x.measureText(val).width; const w=lw+vw;
+      if(!first && cx+w>tx+tw){ cx=tx; y+=lh; }
+      x.font=font(700,12.5); x.fillStyle='#0096FF'; x.fillText(lab,cx,y+14); x.font=font(400,12.5); x.fillStyle='#3B4566'; x.fillText(val,cx+lw,y+14);
+      cx+=w+16; first=false; }); y+=lh; };
+  row([['M:',S.mobile],['E:',S.email],['W:','qualizeal.com']]);
+  const ex=[]; if(S.office&&S.officeNo) ex.push(['T:',S.officeNo]); if(d.careersLine) ex.push(['Careers:','qualizeal.com/careers']); if(S.loc&&S.locText) ex.push(['A:',S.locText]);
+  if(ex.length){ y+=1; row(ex); }
+  // gradient line
+  if(S.grad){ y+=12; const g=x.createLinearGradient(tx,0,tx+200,0); g.addColorStop(0,'#58BAFE'); g.addColorStop(1,'#F3566E'); x.fillStyle=g; x.fillRect(tx,y,200,3); y+=3; }
+  // logo badge
+  y += S.grad?12:14; x.save(); rrect(x,tx,y,144,36,6); x.clip(); x.drawImage(getImg(badge),tx,y,144,36); x.restore();
+  if(S.logo==='white'){ x.strokeStyle='#E1E6EF'; x.lineWidth=1; rrect(x,tx+.5,y+.5,143,35,6); x.stroke(); }
+  y+=36;
+  // tagline
+  if(S.tagline){ y+=9; x.font=font(700,12.5); x.fillStyle='#000D39'; wrapWords(x,S.tagline,tw).forEach(l=>{ x.fillText(l,tx,y+13); y+=17; }); }
+  // capsules
+  const capsList=[...S.capSel.filter(cp=>CAPS.includes(cp)), ...(S.capCustom.trim()?[S.capCustom.trim()]:[])];
+  if(S.caps && capsList.length){ y+=10; let cx=tx; const h=24;
+    capsList.forEach(cp=>{ x.font=font(700,11.5); const w=x.measureText(cp).width+26; if(cx+w>tx+tw){ cx=tx; y+=h+8; }
+      const solid=S.capStyle==='solid', fill=solid?'#0096FF':'#EAF5FF', edge=solid?'#0080E0':'#BFE0FF', depth=solid?'#005FA3':'#8CC8FF';
+      x.save(); x.shadowColor=solid?'rgba(0,98,184,.25)':'rgba(0,26,106,.10)'; x.shadowBlur=8; x.shadowOffsetY=3; x.fillStyle=depth; rrect(x,cx,y+2,w,h,h/2); x.fill(); x.restore();
+      x.fillStyle=fill; rrect(x,cx,y,w,h,h/2); x.fill(); x.strokeStyle=edge; x.lineWidth=1; rrect(x,cx+.5,y+.5,w-1,h-1,h/2); x.stroke();
+      x.fillStyle=solid?'#FFFFFF':'#001A6A'; x.fillText(cp,cx+13,y+16); cx+=w+6; });
+    y+=h+4; }
+  // legal (inside the card so it keeps its size too)
+  if(S.legal && S.legalText){ y+=12; x.font=font(400,10); x.fillStyle='#8A94A6'; wrapWords(x,S.legalText,W-pad*2-(S.photo?0:0)).forEach(l=>{ x.fillText(l,pad,y+10); y+=14; }); }
+  const H=Math.ceil(Math.max(y, S.photo?pad+2+ps:0)+pad);
+  const out=document.createElement('canvas'); out.width=W*sc; out.height=H*sc; out.getContext('2d').drawImage(c,0,0);
+  S.cardW=W; S.cardH=H; return out.toDataURL('image/png');
+}
+// Link pill: opaque, brand-blue text; outline + rounding come from CSS on the <img> (survive Merge formatting).
+const PILLC={};
+function drawPill(label, solid=false){
+  const key=label+'|'+solid; if(PILLC[key]) return PILLC[key];
+  const sc=2, H=26, c=document.createElement('canvas'), x=c.getContext('2d'); x.font=`700 ${12.5*sc}px ${F}`;
+  const W=Math.ceil(x.measureText(label).width/sc)+26; c.width=W*sc; c.height=H*sc;
+  x.fillStyle=solid?'#0096FF':'#FFFFFF'; x.fillRect(0,0,c.width,c.height);
+  x.font=`700 ${12.5*sc}px ${F}`; x.fillStyle=solid?'#FFFFFF':'#0096FF'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(label,c.width/2,c.height/2+1);
+  return PILLC[key]={data:c.toDataURL('image/png'), w:W, h:H};
+}
+function proofLinks(){
+  const d=DEPTS[S.dept]; const out=[];
+  if(S.contactBtns){ out.push({label:'Email', url:'mailto:'+S.email}); out.push({label:'Call', url:'tel:'+(S.mobile||'').replace(/[^+\d]/g,'')}); }
+  [...d.links, ...d.extra].filter((k,i,a)=>a.indexOf(k)===i).filter(k=>S.links[k]).forEach(k=>out.push({label:LINKS[k].label, url:S.linkUrls[k]||LINKS[k].url}));
+  if(S.meet && S.meetUrl) out.push({label:'Book a meeting', url:S.meetUrl});
+  return out;
+}
+function buildProof(hosted){
+  const name=esc(S.name||'Your Name'); const ind = S.photo ? 124 : 16;
+  const src=(key,data,file)=> hosted ? (S.base||'').replace(/\/?$/,'/')+file : data;
+  const alt=esc(`${S.name}, ${S.title} | ${S.company}. M: ${S.mobile}. E: ${S.email}. W: qualizeal.com. ${S.tagline||''}`);
+  const card = S.cardData ? `<tr><td style="padding:0;"><a href="${WEB}" target="_blank"><img src="${src('card',S.cardData,`signature-${slug(S.name)}.png`)}" width="${S.cardW}" height="${S.cardH}" alt="${alt}" border="0" style="display:block;width:100%;max-width:${S.cardW}px;height:auto;border-radius:12px;"></a></td></tr>` : '';
+  // Spacing below uses only what Outlook's "Merge formatting" keeps: table columns (width attributes),
+  // inline images and &nbsp; — no CSS padding — so the paste looks the same in every paste mode.
+  const outline = S.ctaColor==='red' ? '#FEA3B1' : '#B2E0FF';
+  const pct = Math.round(ind/560*100); // scales with the card on narrow (mobile) screens
+  const indent = `<td width="${pct}%" style="width:${pct}%;font-size:1px;line-height:1px;">&nbsp;</td>`;
+  const gapRow = h => `<tr><td colspan="2" height="${h}" style="height:${h}px;font-size:1px;line-height:1px;">&nbsp;</td></tr>`;
+  const cta = (S.cta && S.ctaData) ? gapRow(8)+`<tr>${indent}<td><a href="${esc(S.ctaUrl)}" target="_blank"><img src="${src('cta',S.ctaData,`cta-${slug(S.ctaLabel)}.png`)}" width="${S.ctaW}" height="${S.ctaH}" alt="${esc(S.ctaLabel)}" border="0" style="width:${S.ctaW}px;height:${S.ctaH}px;border:1px solid ${outline};border-radius:${S.ctaH/2+1}px;vertical-align:middle;"></a></td></tr>` : '';
+  const pills = proofLinks().map(l=>{ const p=drawPill(l.label);
+    return `<a href="${esc(l.url)}" target="_blank"><img src="${src('pill',p.data,`link-${slug(l.label)}.png`)}" width="${p.w}" height="${p.h}" alt="${esc(l.label)}" border="0" style="width:${p.w}px;height:${p.h}px;border:1px solid #B2E0FF;border-radius:${p.h/2+1}px;vertical-align:middle;"></a>`; }).join('&nbsp; ');
+  const links = pills ? gapRow(8)+`<tr>${indent}<td>${pills}</td></tr>` : '';
+  const banner = (S.banner && S.bannerData) ? gapRow(12)+`<tr><td colspan="2"><a href="${esc(S.bUrl)}" target="_blank"><img src="${src('banner',S.bannerData,`banner-${S.dept}-${S.bType}.jpg`)}" width="560" height="120" alt="${esc(S.bHead)} · ${esc(S.bCta)}" border="0" style="width:100%;max-width:560px;height:auto;border-radius:12px;"></a></td></tr>` : '';
+  const cardRow = card.replace('<tr><td style="padding:0;">','<tr><td colspan="2">');
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560" style="width:100%;max-width:560px;border-collapse:collapse;">${cardRow}${cta}${links}${banner}</table>`;
+}
+
 function buildSig(hosted=false){
+  if(S.fmt==='proof' && !DEPTS[S.dept].minimal) return buildProof(hosted);
   const d = DEPTS[S.dept];
   const name = esc(S.name||'Your Name'), title = esc(S.title||'Designation'), comp = esc(S.company);
   const tel = (S.mobile||'').replace(/[^+\d]/g,'');
   if(d.minimal){
-    return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td style="font-family:${F};font-size:13px;line-height:19px;color:#000D39;">`+
-      `<span style="font-size:15px;font-weight:700;color:#000D39;">${name}</span><br>`+
-      `<span style="color:#3B4566;">${title} | ${comp}</span><br>`+
-      `<span style="color:#3B4566;">M: </span>${A_('tel:'+tel,esc(S.mobile),'#3B4566')}<br>`+
-      `<span style="color:#3B4566;">E: </span>${A_('mailto:'+S.email,esc(S.email),'#3B4566')}<br>`+
-      `<span style="color:#3B4566;">W: </span>${A_(WEB,'qualizeal.com','#3B4566')}`+
-      `${S.legal?`<br><br><span style="font-size:10px;line-height:14px;color:#8A94A6;">${esc(S.legalText)}</span>`:''}</td></tr></table>`;
+    const R = (inner,pt,w,col,pad='0') => { const st=`font-family:${F};font-size:${pt}pt;line-height:19px;mso-line-height-rule:exactly;font-weight:${w};color:${col};`;
+      const span = `<span style="${st}">${inner}</span>`;
+      return `<tr><td style="padding:${pad};${st}">${FT(w>=600 ? `<b>${span}</b>` : span, ptToSize(pt), col)}</td></tr>`; };
+    return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">`+
+      R(name,11.5,700,'#000D39')+
+      R(`${title} | ${comp}`,10,400,'#3B4566')+
+      R(`M: ${A_('tel:'+tel,esc(S.mobile),'#3B4566')}`,10,400,'#3B4566')+
+      R(`E: ${A_('mailto:'+S.email,esc(S.email),'#3B4566')}`,10,400,'#3B4566')+
+      R(`W: ${A_(WEB,'qualizeal.com','#3B4566')}`,10,400,'#3B4566')+
+      (S.legal? R(esc(S.legalText),7.5,400,'#8A94A6','12px 0 0 0'):'')+`</table>`;
   }
-  const lab = l => `<span style="color:#0096FF;font-weight:700;">${l}</span>&nbsp;`;
+  const lab = l => `<font color="#0096FF"><b><span style="color:#0096FF;font-weight:700;">${l}</span></b></font>&nbsp;`;
   const sep = `&nbsp;&nbsp; `;
   const nw = h => `<span style="white-space:nowrap;">${h}</span>`;
   let contact = [nw(`${lab('M:')}${A_('tel:'+tel,esc(S.mobile),'#3B4566')}`), nw(`${lab('E:')}${A_('mailto:'+S.email,esc(S.email),'#3B4566')}`), nw(`${lab('W:')}${A_(WEB,'qualizeal.com','#3B4566')}`)].join(sep);
@@ -653,6 +767,11 @@ function buildSig(hosted=false){
   if(d.careersLine) extra.push(nw(`${lab('Careers:')}${A_((S.linkUrls.careers||LINKS.careers.url),'qualizeal.com/careers','#3B4566')}`));
   if(S.loc && S.locText) extra.push(nw(`${lab('A:')}<span style="color:#3B4566;">${esc(S.locText)}</span>`));
   const P = (inner,pad) => `<tr><td style="padding:${pad};font-family:${F};">${inner}</td></tr>`;
+  // Text rows: size/weight/color live on the <td> (in pt, Outlook's native unit) AND on the inner <span>,
+  // because Outlook's signature editor often strips span-only font sizes on paste.
+  const TX = (inner,pad,pt,lh,w,col) => { const st=`font-family:${F};font-size:${pt}pt;line-height:${lh}px;mso-line-height-rule:exactly;font-weight:${w};color:${col};`;
+    const span = `<span style="${st}">${inner}</span>`;
+    return `<tr><td style="padding:${pad};${st}">${FT(w>=600 ? `<b>${span}</b>` : span, ptToSize(pt), col)}</td></tr>`; };
   const ps = 88, radius = S.photoShape==='circle'?'50%':'14px';
   const ring = S.photoRing==='none'?'':`border:2px solid ${S.photoRing};`;
   const photo = S.photo ? `<td width="${ps+20}" valign="top" style="width:${ps+20}px;padding:2px 20px 0 0;"><img src="${imgSrc('photo',hosted)}" width="${ps}" height="${ps}" alt="${name}" border="0" style="display:block;width:${ps}px;height:${ps}px;border-radius:${radius};${ring}"></td>` : '';
@@ -666,19 +785,19 @@ function buildSig(hosted=false){
   const cta = (S.cta && S.ctaData) ? P(`<a href="${esc(S.ctaUrl)}" target="_blank" style="text-decoration:none;"><img src="${imgSrc('cta',hosted)}" width="${S.ctaW}" height="${S.ctaH}" alt="${esc(S.ctaLabel)}" border="0" style="display:block;width:${S.ctaW}px;height:${S.ctaH}px;border:1px solid ${outline};border-radius:${S.ctaH/2+1}px;"></a>`,'12px 0 0 0') : '';
   const linkKeys = Object.keys(LINKS).filter(k => S.links[k]);
   const order = [...d.links, ...d.extra].filter((k,i,a)=>a.indexOf(k)===i).filter(k => S.links[k]);
-  const links = order.map(k => A_(S.linkUrls[k]||LINKS[k].url, esc(LINKS[k].label), '#0096FF', `font-family:${F};font-size:12.5px;line-height:18px;font-weight:700;`));
-  if(S.meet && S.meetUrl) links.push(A_(S.meetUrl,'Book a meeting','#0096FF',`font-family:${F};font-size:12.5px;line-height:18px;font-weight:700;`));
-  const linkRow = links.length ? P(links.join(`<span style="color:#B7BFCE;font-family:${F};font-size:12.5px;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>`),'12px 0 0 0') : '';
-  const pron = (S.pron && S.pronText) ? ` <span style="font-size:12.5px;font-weight:400;color:#8A94A6;">(${esc(S.pronText)})</span>` : '';
+  const links = order.map(k => A_(S.linkUrls[k]||LINKS[k].url, esc(LINKS[k].label), '#0096FF', `font-family:${F};font-size:9.5pt;line-height:18px;font-weight:700;`));
+  if(S.meet && S.meetUrl) links.push(A_(S.meetUrl,'Book a meeting','#0096FF',`font-family:${F};font-size:9.5pt;line-height:18px;font-weight:700;`));
+  const linkRow = links.length ? P(FT('<b>'+links.join(`<span style="color:#B7BFCE;font-family:${F};font-size:9.5pt;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>`)+'</b>',2,'#0096FF'),'12px 0 0 0') : '';
+  const pron = (S.pron && S.pronText) ? ` <font size="2" color="#8A94A6"><span style="font-size:9.5pt;font-weight:400;color:#8A94A6;">(${esc(S.pronText)})</span></font>` : '';
   const grad = S.grad ? P(`<img src="${imgSrc('grad',hosted)}" width="200" height="3" alt="" border="0" style="display:block;width:200px;height:3px;">`,'12px 0 0 0') : '';
   const details =
     `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">`+
-    P(`<span style="font-size:19px;line-height:24px;font-weight:700;color:#000D39;">${name}</span>${pron}`,'0')+
-    P(`<span style="font-size:13px;line-height:18px;font-weight:600;color:#001A6A;">${title} | ${comp}</span>`,'2px 0 0 0')+
-    P(`<span style="font-size:12.5px;line-height:19px;color:#3B4566;">${contact}</span>`,'7px 0 0 0')+
-    (extra.length? P(`<span style="font-size:12.5px;line-height:19px;color:#3B4566;">${extra.join(sep)}</span>`,'1px 0 0 0'):'')+
+    TX(`${name}${pron}`,'0',14.5,24,700,'#000D39')+
+    TX(`${title} | ${comp}`,'2px 0 0 0',10,18,600,'#001A6A')+
+    TX(contact,'7px 0 0 0',9.5,19,400,'#3B4566')+
+    (extra.length? TX(extra.join(sep),'1px 0 0 0',9.5,19,400,'#3B4566'):'')+
     grad + P(badge, S.grad?'12px 0 0 0':'14px 0 0 0')+
-    (S.tagline? P(`<span style="font-size:12.5px;line-height:17px;font-weight:700;color:#000D39;">${esc(S.tagline)}</span>`,'9px 0 0 0'):'')+
+    (S.tagline? TX(esc(S.tagline),'9px 0 0 0',9.5,17,700,'#000D39'):'')+
     caps + cta + linkRow + `</table>`;
   const banner = S.banner && S.bannerData ? `<tr><td colspan="${S.photo?2:1}" style="padding:16px 0 0 0;"><a href="${esc(S.bUrl)}" target="_blank"><img src="${imgSrc('banner',hosted)}" width="560" height="120" alt="${esc(S.bHead)} · ${esc(S.bCta)}" border="0" style="display:block;width:100%;max-width:560px;height:auto;border-radius:10px;"></a></td></tr>` : '';
   const legal = S.legal ? `<tr><td colspan="${S.photo?2:1}" style="padding:12px 0 0 0;font-family:${F};font-size:10px;line-height:14px;color:#8A94A6;max-width:560px;">${esc(S.legalText)}</td></tr>` : '';
@@ -693,6 +812,10 @@ function plainText(){
 function render(){
   if(S.banner && !DEPTS[S.dept].minimal) S.bannerData = drawBanner();
   if(S.cta && !DEPTS[S.dept].minimal) S.ctaData = drawButton();
+  if(S.fmt==='proof' && !DEPTS[S.dept].minimal) S.cardData = drawCard();
+  const proof = S.fmt==='proof' && !DEPTS[S.dept].minimal;
+  $('proofNote').style.display = proof ? 'block' : 'none';
+  $('pasteNote').style.display = proof ? 'none' : 'block';
   const html = buildSig(false);
   $('sig').innerHTML = html;
   const cl = $('client'); cl.classList.toggle('mobile', S.size==='mobile'); cl.classList.toggle('dark', S.mode==='dark');
@@ -729,7 +852,7 @@ async function copyOutlook(){
     const h=document.createElement('div'); h.style.cssText='position:fixed;left:-9999px;top:0;background:#fff'; h.innerHTML=html; document.body.appendChild(h);
     const r=document.createRange(); r.selectNodeContents(h); const s=getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand('copy'); s.removeAllRanges(); h.remove();
   }
-  toast('<b>Signature copied</b> · Outlook › Settings › Accounts › Signatures › paste › Save');
+  toast(S.fmt==='proof' && !DEPTS[S.dept].minimal ? '<b>Paste-proof signature copied</b> · paste into Outlook › Signatures and Save. Any paste mode works' : '<b>Signature copied</b> · paste with <b>Keep source formatting</b> in Outlook › Signatures, then Save');
 }
 function copyText(t){ if(navigator.clipboard&&window.isSecureContext) return navigator.clipboard.writeText(t);
   const a=document.createElement('textarea'); a.value=t; a.style.position='fixed'; a.style.opacity='0'; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); return Promise.resolve(); }
@@ -739,6 +862,8 @@ async function downloadImages(){
   if(S.photo) items.push([`photo-${slug(S.name)}.jpg`,S.photoSrc]);
   if(S.banner&&S.bannerData) items.push([`banner-${S.dept}-${S.bType}.jpg`,S.bannerData]);
   if(S.cta&&S.ctaData) items.push([`cta-${slug(S.ctaLabel)}.png`,S.ctaData]);
+  if(S.fmt==='proof' && !DEPTS[S.dept].minimal){ if(S.cardData) items.push([`signature-${slug(S.name)}.png`,S.cardData]);
+    proofLinks().forEach(l=>items.push([`link-${slug(l.label)}.png`,drawPill(l.label).data])); }
   for(const [n,u] of items){ const b=await (await fetch(u)).blob(); download(n,b); await new Promise(r=>setTimeout(r,250)); }
   toast(`<b>${items.length} images downloaded</b> · upload them to the base URL, then copy the hosted HTML`);
 }
